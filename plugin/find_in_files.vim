@@ -1,27 +1,27 @@
 " Vim plugin with helper function(s) for --find_in_files in current directory
 " Maintainer: Sappy Goel <sappygoel@yahoo.com>
-" Last Change: 11 July 2003
-
-function! Str_to_no(str)
-		let multiplier=1
-		let nom=0
-		let length=strlen(a:str)
-		while (length > 0)
-				let tmpStr=strpart(a:str,length-1,1)
-				let tmp=char2nr(tmpStr)-char2nr("0")
-				let nom=nom+multiplier*tmp
-				let multiplier=multiplier*10
-				let length=length-1
-		endwhile
-		return nom
-endfunction
+" Creation Date: 11 July 2003 <Initial Version>
+" 
+" Version 1.01: 25 Nov 2003
+" changes to use grep and copen as suggested by Gary Johnson
+" This is similar to grep command of VIM, additional functionality is the
+" following:
+" 	Use <F3> or :call FF("<string>")
+" 		to search in the list of files in current directory
+" 	Use <F4> or :call FC("<string>")
+" 		to search in the current file
+" 	<F2> to open the file in which the search string is found
+" 	
+" 	If <F3>/<F4> is used current word beneath the cursor is used as search 
+" 	string 
 
 function! Open_file()
 	let lineTxt=getline(".")
-	let fStrNo=match(lineTxt, ":")
+	let fStrNo=match(lineTxt, "|")
 	let fileName=strpart(lineTxt, 0, fStrNo)
-	let fLineNo=match(lineTxt, ":", fStrNo+1)
+	let fLineNo=match(lineTxt, "|", fStrNo+1)
 	let lineNo=strpart(lineTxt,fStrNo+1, fLineNo-fStrNo-1)
+	execute "wincmd k"
 	if bufexists(fileName)
 			let s:bufNo = bufnr(bufname(fileName))
 			execute "buffer" s:bufNo
@@ -35,13 +35,13 @@ function! Open_file()
 endfunction
 
 function! FF(str)
-	execute "!findstr /N" a:str "* > c:\\xyz"
-	execute "e c:\\xyz"
+	execute "grep" a:str "*"
+	execute "copen"
 endfunction
 
 function! FC(str)
-	execute "!findstr /N" a:str "% a> c:\\xyz"
-	execute "e c:\\xyz"
+	execute "grep" a:str "% a"
+	execute "copen"
 endfunction
 
 function! Call_find_in_files()
